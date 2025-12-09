@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Registration - DIU Bus Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+    <div class="auth-card">
+        <h1>Register Driver</h1>
+        <div class="error-message" id="error-message"></div>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+             <div class="form-group">
+                <label for="universityID">Staff/Driver ID</label>
+                <input type="text" id="universityID" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" minlength="6" required>
+            </div>
+            <button type="submit" class="auth-button">Register as Driver</button>
+            <a href="login.html" class="form-link">Already have an account? Login</a>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('register-form');
+        const errorMessageDiv = document.getElementById('error-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessageDiv.style.display = 'none';
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            // ✅ ফিক্স: 'universityID' (Capital ID)
+            const universityID = document.getElementById('universityID').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // ✅ ফিক্স: '/api/auth/register-driver'
+                const response = await fetch('https://diu-backend.onrender.com/api/auth/register-driver', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // ✅ ফিক্স: 'universityID' (Capital ID)
+                    body: JSON.stringify({ name, email, universityID, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Driver registration successful! Please login.');
+                    window.location.href = 'login.html';
+                } else {
+                    errorMessageDiv.innerText = data.message;
+                    errorMessageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessageDiv.innerText = 'Server connection error. Please try again.';
+                errorMessageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

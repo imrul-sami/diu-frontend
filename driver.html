@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>Driver Panel - DIU Bus Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="driver-panel">
+        <h1>Driver Tracking Panel</h1>
+        
+        <div class="form-group">
+            <label for="busId">Aponar Bus-er Naam (Unique):</label>
+            <input type="text" id="busId" placeholder="e.g., DIU-Bus-01" class="form-group input">
+        </div>
+        
+        <button id="start-tracking" class="auth-button">Start Tracking</button>
+        <button id="stop-tracking" class="auth-button" style="background-color: #f39c12; margin-top: 10px;">Stop Tracking</button>
+        
+        <div id="status" style="margin-top: 20px;">Status: Inactive</div>
+        
+        <button id="driver-logout" class="auth-button" style="background-color: #e74c3c; margin-top: 30px;">Log Out</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const startButton = document.getElementById('start-tracking');
+        const stopButton = document.getElementById('stop-tracking');
+        const logoutButton = document.getElementById('driver-logout');
+        const busIdInput = document.getElementById('busId');
+        const statusDiv = document.getElementById('status');
+        
+        let watchId = null; // To store the geolocation watch ID
+        const token = localStorage.getItem('diuBusToken');
+
+        // --- 1. Security Check (Page Load) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const userRole = localStorage.getItem('diuUserRole');
+            if (userRole !== 'driver' || !token) {
+                alert('Access Denied. Only drivers can access this page.');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // --- 2. Start Tracking Button ---
+        startButton.addEventListener('click', () => {
+            const busId = busIdInput.value;
+            if (!busId) {
+                statusDiv.innerText = 'Error: Please enter a Bus Name.';
+                statusDiv.className = 'status-error';
+                return;
+            }
+            
+            if (!('geolocation' in navigator)) {
+                statusDiv.innerText = 'Error: Geolocation is not supported by your browser.';
+                statusDiv.className = 'status-error';
+                return;
+            }
+            
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId); // Stop previous watch if any
+            }
+
+            statusDiv.innerText = 'Starting... Requesting location permission.';
+            statusDiv.className = 'status-active';
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            busIdInput.disabled = true;
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    statusDiv.innerText = `Status: Active. Sending location...`;
+                    statusDiv.className = 'status-active';
+                    
+                    // Send location to server
+                    sendLocationToServer(busId, latitude, longitude);
+                },
+                (error) => {
+                    console.error('Geolocation Error:', error);
+                    statusDiv.innerText = `Error: ${error.message}`;
+                    statusDiv.className = 'status-error';
+                    stopTracking(); // Stop if error (e.g., permission denied)
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+
+        // --- 3. Stop Tracking Button ---
+        stopButton.addEventListener('click', () => {
+            stopTracking();
+        });
+
+        function stopTracking() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            statusDiv.innerText = 'Status: Inactive. Tracking stopped.';
+            statusDiv.className = '';
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            busIdInput.disabled = false;
+        }
+
+        // --- 4. Send Location to Server Function ---
+        async function sendLocationToServer(busId, lat, lng) {
+            try {
+                const response = await fetch('https://diu-backend.onrender.com/api/location/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // Send auth token
+                    },
+                    body: JSON.stringify({ busId, lat, lng })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Server responded with an error');
+                }
+                
+                // Server response is OK
+                
+            } catch (error) {
+                console.error('Failed to send location:', error);
+                statusDiv.innerText = `Error: Failed to send location. ${error.message}`;
+                statusDiv.className = 'status-error';
+                stopTracking(); // Stop if server rejects location
+            }
+        }
+        
+        // --- 5. Logout Button ---
+        logoutButton.addEventListener('click', () => {
+            stopTracking(); // Stop tracking before logging out
+            localStorage.removeItem('diuBusToken');
+            localStorage.removeItem('diuUserName');
+            localStorage.removeItem('diuUserRole');
+            alert('Logged out successfully.');
+            window.location.href = 'login.html';
+        });
+
+    </script>
+</body>
+</html>
