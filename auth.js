@@ -2,9 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const navList = document.getElementById('nav-list');
     const token = localStorage.getItem('diuBusToken');
     const userName = localStorage.getItem('diuUserName');
+    const userRole = localStorage.getItem('diuUserRole'); // রোল চেক করা হচ্ছে
 
     if (token && userName) {
-        // User is logged in
+        // --- ইউজার লগইন অবস্থায় আছে ---
+        
+        // ১. যদি ইউজার 'admin' হয়, তবে অ্যাডমিন বাটন দেখাও
+        if (userRole === 'admin') {
+            const adminLi = document.createElement('li');
+            adminLi.innerHTML = `<a href="admin.html" style="color: red; font-weight: bold;">Admin Panel</a>`;
+            navList.appendChild(adminLi);
+        }
+
+        // ২. ওয়েলকাম মেসেজ এবং লগআউট বাটন
         const authLi = document.createElement('li');
         authLi.classList.add('auth-active');
         
@@ -15,17 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         navList.appendChild(authLi);
 
-        // Add logout functionality
+        // ৩. লগআউট লজিক
         const logoutButton = document.getElementById('logout-button');
         logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('diuBusToken');
-            localStorage.removeItem('diuUserName');
-            localStorage.removeItem('diuUserRole');
-            window.location.reload(); // Reload page to update navbar
+            localStorage.clear(); // সব ডেটা মুছে ফেলা
+            window.location.href = 'index.html'; // হোমপেজে ফেরত পাঠানো
         });
 
     } else {
-        // User is logged out
+        // --- ইউজার লগইন নেই ---
         const authLi = document.createElement('li');
         authLi.innerHTML = `<a href="login.html" class="login-button">Login / Sign Up</a>`;
         navList.appendChild(authLi);
