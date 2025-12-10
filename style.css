@@ -213,4 +213,36 @@ body {
 
 .status-error {
   color: #e74c3c;
+
+}
+
+/* --- Mobile Responsive Design --- */
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        padding: 0.5rem 1rem;
+    }
+
+    .navbar .logo {
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .navbar nav ul {
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .navbar nav ul li a, 
+    .navbar nav ul li button {
+        font-size: 0.9rem;
+        padding: 5px 8px;
+    }
+    
+    .auth-active {
+        flex-direction: column;
+        gap: 5px;
+    }
 }
