@@ -32,12 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         navList.appendChild(authLi);
 
-        // ৪. লগআউট লজিক
-        const logoutButton = document.getElementById('logout-button');
-        logoutButton.addEventListener('click', () => {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        });
+       // Logout Logic
+const logoutButton = document.getElementById('logout-button');
+logoutButton.addEventListener('click', () => {
+    // ১. লোকাল স্টোরেজ ক্লিয়ার
+    localStorage.removeItem('diuBusToken');
+    localStorage.removeItem('diuUserName');
+    localStorage.removeItem('diuUserRole');
+    
+    // ২. পেজ রিলোড না করে সরাসরি লগইন পেজে পাঠানো (ফাস্ট হবে)
+    window.location.href = 'login.html';
+});
 
     } else {
         // --- লগইন নেই ---
@@ -46,3 +51,4 @@ document.addEventListener('DOMContentLoaded', () => {
         navList.appendChild(authLi);
     }
 });
+
