@@ -216,33 +216,53 @@ body {
 
 }
 
-/* --- Mobile Responsive Design --- */
+/* --- Mobile Responsive Design (Updated) --- */
 @media (max-width: 600px) {
     .navbar {
         flex-direction: column;
-        padding: 0.5rem 1rem;
+        padding: 15px 10px;
+        gap: 15px; /* লোগো এবং মেনুর মাঝে গ্যাপ */
     }
 
     .navbar .logo {
-        margin-bottom: 0.5rem;
-        font-size: 1.2rem;
+        font-size: 1.5rem;
+        margin-bottom: 5px;
     }
 
     .navbar nav ul {
-        gap: 10px;
+        display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        align-items: center;
+        gap: 15px; /* বাটনগুলোর মাঝে গ্যাপ */
+        width: 100%;
         padding: 0;
     }
 
-    .navbar nav ul li a, 
-    .navbar nav ul li button {
-        font-size: 0.9rem;
-        padding: 5px 8px;
+    .navbar nav ul li {
+        margin: 0;
     }
-    
+
+    /* লিংকগুলোর ফন্ট সাইজ ঠিক করা */
+    .navbar nav ul li a {
+        font-size: 1rem;
+        padding: 5px;
+    }
+
+    /* ওয়েলকাম মেসেজ এবং লগআউট বাটন আলাদা লাইনে */
     .auth-active {
-        flex-direction: column;
-        gap: 5px;
+        display: flex;
+        flex-direction: row; /* পাশাপাশি থাকবে */
+        align-items: center;
+        background: #f1f1f1;
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin-top: 5px;
+        gap: 10px;
+    }
+
+    .logout-button {
+        font-size: 0.9rem;
+        padding: 5px 10px;
     }
 }
