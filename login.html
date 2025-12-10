@@ -17,6 +17,20 @@
 </script>
     
     <link rel="stylesheet" href="style.css">
+<script>
+        const savedToken = localStorage.getItem('diuBusToken');
+        const savedRole = localStorage.getItem('diuUserRole');
+
+        if (savedToken) {
+            // যদি আগে থেকেই লগইন করা থাকে, তবে লগইন পেজে বসে না থেকে...
+            if (savedRole === 'driver') {
+                window.location.href = 'driver.html'; // ড্রাইভার হলে প্যানেলে যাও
+            } else {
+                window.location.href = 'index.html'; // ইউজার হলে ম্যাপে যাও
+            }
+        }
+    </script>
+    
 </head>
 <body class="auth-body">
 
@@ -82,3 +96,4 @@
 </body>
 
 </html>
+
