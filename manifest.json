@@ -1,7 +1,7 @@
 {
     "name": "DIU Bus Tracker",
     "short_name": "DIU Bus",
-    "start_url": "/login.html",
+    "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#007bff",
@@ -17,4 +17,5 @@
         "type": "image/png"
       }
     ]
+
   }
