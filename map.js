@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let busMarkers = {};
 
     // --- Socket.IO কানেকশন ---
-    // ⚠️ আপনার Render লিংকটি ঠিক আছে কিনা নিশ্চিত করুন
+  
     const socket = io('https://diu-backend.onrender.com'); 
 
     socket.on('connect', () => {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dist = getDistance(userLat, userLng, lat, lng);
             distanceText = `${dist} km`;
             
-            // ✅ ফিক্স: ম্যাপের ওপর শুধু দূরত্ব দেখাবে (নাম দেখাবে না)
+            // ম্যাপের ওপর শুধু দূরত্ব দেখাবে 
             tooltipText = `<b style="font-size: 14px;">${distanceText}</b>`;
         }
 
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             busMarkers[busId].setLatLng(newPosition);
             busMarkers[busId].setPopupContent(popupContent);
             
-            // টুলটিপ আপডেট (শুধু দূরত্ব)
+            // টুলটিপ (শুধু দূরত্ব)
             if (tooltipText) {
                 busMarkers[busId].setTooltipContent(tooltipText);
             }
@@ -136,3 +136,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
