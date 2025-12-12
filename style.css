@@ -288,3 +288,14 @@ body {
     color: #666;
     user-select: none;
 }
+
+/* --- Bus Distance Tooltip --- */
+.bus-tooltip {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #007bff;
+    color: #333;
+    font-size: 0.8rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
