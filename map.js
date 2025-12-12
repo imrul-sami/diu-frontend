@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // ১. ম্যাপ সেটআপ (ডিফল্ট: ড্যাফোডিল ক্যাম্পাস)
+    // ১. ম্যাপ সেটআপ
     const map = L.map('map').setView([23.8760, 90.3160], 15);
 
-    // ২. ম্যাপের লেয়ার (রাস্তাঘাট)
+    // ২. ম্যাপের লেয়ার
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
@@ -12,24 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
     L.marker([23.8760, 90.3160]).addTo(map)
         .bindPopup('<b>Daffodil International University</b>');
 
-    // ইউজারের লোকেশন রাখার ভেরিয়েবল
     let userLat = null;
     let userLng = null;
     let userMarker = null;
 
-    // ৪. ইউজারের লোকেশন বের করা (লাইভ ট্র্যাকিং)
+    // ৪. ইউজারের লোকেশন বের করা
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
             (position) => {
                 userLat = position.coords.latitude;
                 userLng = position.coords.longitude;
                 
-                // প্রথমবার লোড হলে জুম ইন করবে
                 if (!userMarker) {
                     map.flyTo([userLat, userLng], 15, { animate: true, duration: 1.5 });
                 }
 
-                // ইউজারের মার্কার আপডেট করা
                 if (userMarker) {
                     userMarker.setLatLng([userLat, userLng]);
                 } else {
@@ -45,13 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     }
 
-    // ৫. বাসের আইকন ডিজাইন
+    // ৫. বাসের আইকন
     const busIcon = L.icon({
         iconUrl: 'https://cdn-icons-png.flaticon.com/64/3448/3448339.png',
         iconSize: [40, 40],
         iconAnchor: [20, 20],
         popupAnchor: [0, -20],
-        tooltipAnchor: [20, 0] // টুলটিপ একটু ডানে দেখাবে
+        tooltipAnchor: [20, 0]
     });
 
     let busMarkers = {};
@@ -74,15 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMarker(data, data.busId);
     });
 
-    // --- ৬. দূরত্ব মাপার সূত্র (km) ---
+    // ৬. দূরত্ব মাপার সূত্র
     function getDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // পৃথিবীর ব্যাসার্ধ
+        const R = 6371; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
                   Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return (R * c).toFixed(2); // ২ ঘর পর্যন্ত (যেমন: 2.50 km)
+        return (R * c).toFixed(2);
     }
 
     // ৭. মার্কার আপডেট করা
@@ -92,38 +89,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // দূরত্ব বের করা
         let distanceText = "";
+        let tooltipText = ""; // ম্যাপের ওপর যা ভেসে থাকবে
+
         if (userLat && userLng) {
             const dist = getDistance(userLat, userLng, lat, lng);
-            distanceText = ` (${dist} km)`;
+            distanceText = `${dist} km`;
+            
+            // ✅ ফিক্স: ম্যাপের ওপর শুধু দূরত্ব দেখাবে (নাম দেখাবে না)
+            tooltipText = `<b style="font-size: 14px;">${distanceText}</b>`;
         }
 
-        // পপ-আপ মেসেজ (ক্লিক করলে দেখাবে)
+        // পপ-আপ মেসেজ (ক্লিক করলে নামসহ সব দেখাবে)
         const popupContent = `
             <div style="text-align: center;">
-                <b style="font-size: 1.1em;">${busId}</b><br>
-                <span style="color: red; font-weight: bold;">দূরত্ব: ${distanceText || 'হিসাব করা যাচ্ছে না'}</span><br>
-                <small>আপডেট: ${new Date(timestamp).toLocaleTimeString()}</small>
+                <b style="font-size: 1.2em; color: #007bff;">${busId}</b><br>
+                ${distanceText ? `<span>দূরত্ব: <b>${distanceText}</b></span><br>` : ''}
+                <small style="color: grey;">Last update: ${new Date(timestamp).toLocaleTimeString()}</small>
             </div>
         `;
 
         if (busMarkers[busId]) {
-            // মার্কার আগেই থাকলে আপডেট করো
+            // মার্কার আপডেট
             busMarkers[busId].setLatLng(newPosition);
             busMarkers[busId].setPopupContent(popupContent);
-            // টুলটিপ আপডেট (ম্যাপের ওপর লেখা)
-            busMarkers[busId].setTooltipContent(`<b>${busId}</b> ${distanceText}`);
+            
+            // টুলটিপ আপডেট (শুধু দূরত্ব)
+            if (tooltipText) {
+                busMarkers[busId].setTooltipContent(tooltipText);
+            }
         } else {
-            // নতুন মার্কার বানাও
+            // নতুন মার্কার তৈরি
             const marker = L.marker(newPosition, { icon: busIcon })
                 .addTo(map)
                 .bindPopup(popupContent);
             
-            // টুলটিপ যোগ করা (স্থায়ীভাবে বাসের নামের পাশে দূরত্ব দেখাবে)
-            marker.bindTooltip(`<b>${busId}</b> ${distanceText}`, {
-                permanent: true, // সবসময় দেখা যাবে
-                direction: 'right', // ডান পাশে থাকবে
-                className: 'bus-tooltip' // স্টাইলের জন্য ক্লাস
-            }).openTooltip();
+            // টুলটিপ বাইন্ড করা (যদি ইউজার লোকেশন অন থাকে, তবেই দূরত্ব দেখাবে)
+            if (tooltipText) {
+                marker.bindTooltip(tooltipText, {
+                    permanent: true, 
+                    direction: 'right', 
+                    className: 'bus-tooltip'
+                }).openTooltip();
+            }
 
             busMarkers[busId] = marker;
         }
