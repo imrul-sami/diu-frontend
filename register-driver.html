@@ -43,16 +43,16 @@
             
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
-            // ✅ ফিক্স: 'universityID' (Capital ID)
+            // universityID' (Capital ID)
             const universityID = document.getElementById('universityID').value;
             const password = document.getElementById('password').value;
 
             try {
-                // ✅ ফিক্স: '/api/auth/register-driver'
+                //  '/api/auth/register-driver'
                 const response = await fetch('https://diu-backend.onrender.com/api/auth/register-driver', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // ✅ ফিক্স: 'universityID' (Capital ID)
+                    //'universityID' (Capital ID)
                     body: JSON.stringify({ name, email, universityID, password })
                 });
 
@@ -72,4 +72,5 @@
         });
     </script>
 </body>
+
 </html>
